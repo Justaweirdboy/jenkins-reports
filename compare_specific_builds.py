@@ -4,16 +4,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 import urllib3
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 url_regi_base = "https://jenkins.ewiser.hu:42841/view/%20%20test-environments/job/test-environments/job/abomination-core/job/build-image"
-USER_regi = "admin"
-TOKEN_regi = "1119c9fd6a76037dfe563634eadf871d64"
+USER_regi = os.getenv("JENKINS_USER")
+TOKEN_regi = os.getenv("JENKINS_TOKEN_OLD")
 
 url_uj_base = "http://10.110.0.22:8080/view/%20%20test-environments/job/test-environments/job/abomination-core/job/build-image"
-USER_uj = "admin"
-TOKEN_uj = "1169b34ea9c2aa592e7a471e1346e7fdec"
+USER_uj = os.getenv("JENKINS_USER")
+TOKEN_uj = os.getenv("JENKINS_TOKEN_NEW")
 
 BUILD_PAIRS = [
     (823, 908),
@@ -135,15 +139,15 @@ width = 0.4
 fig, ax = plt.subplots(figsize=(12, 6))
 
 color_map = {
-    'Wait/Other': '#d3d3d3',
-    'Init': '#c7c7c7',
-    'Declarative: Checkout SCM': '#98df8a',
-    'Git clone': '#2ca02c',
-    'Checkout': '#2ca02c',
-    'Build': '#1f77b4',
-    'Build & Push (Google Cloud Build)': '#1f77b4',
-    'Push image': '#aec7e8',
-    'Declarative: Post Actions': '#9467bd'
+    'Wait/Other': '#BDBDBD',           # Szürke
+    'Init': '#795548',                  # Barna
+    'Declarative: Checkout SCM': '#4CAF50',  # Zöld
+    'Git clone': '#FF9800',             # Narancs
+    'Checkout': '#CDDC39',              # Lime/sárgazöld
+    'Build': '#2196F3',                 # Kék
+    'Build & Push (Google Cloud Build)': '#E91E63',  # Pink/magenta
+    'Push image': '#00BCD4',            # Cyan/türkiz
+    'Declarative: Post Actions': '#9C27B0'  # Lila
 }
 
 default_colors = plt.cm.tab20(np.linspace(0, 1, len(all_stages)))
@@ -174,13 +178,13 @@ for i in range(max_builds):
     ax.text(x[i] + width/2, df_uj['_Total'].iloc[i], f"{df_uj['_Total'].iloc[i]:.0f}s", 
             ha='center', va='bottom', fontsize=9, fontweight='bold')
 
-regi_times = df_regi['_Time'].values
-uj_times = df_uj['_Time'].values
+regi_ids = df_regi['_BuildID'].values
+uj_ids = df_uj['_BuildID'].values
 
-xtick_labels = [f"R: {rt}\nÚ: {ut}" for rt, ut in zip(regi_times, uj_times)]
+xtick_labels = [f"#{rid} vs #{uid}" for rid, uid in zip(regi_ids, uj_ids)]
 
 ax.set_xticks(x)
-ax.set_xticklabels(xtick_labels, rotation=0, fontsize=9)
+ax.set_xticklabels(xtick_labels, rotation=0, fontsize=10)
 ax.set_ylabel('Időtartam (másodperc)', fontweight='bold')
 ax.set_title('Image buildek sebességének összehasonlítása a régi és az új Jenkins esetén', fontweight='bold')
 ax.grid(axis='y', linestyle='--', alpha=0.5)

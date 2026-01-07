@@ -57,6 +57,12 @@ if df_regi.empty or df_uj.empty:
     print("\nHIBA: Nem sikerült lekérni az adatokat valamelyik job-ból.")
     exit()
 
+# Kiszűrjük a 4-es buildet mindkét adathalmazból
+df_regi = df_regi[df_regi['_BuildID'] != '4'].reset_index(drop=True)
+df_uj = df_uj[df_uj['_BuildID'] != '4'].reset_index(drop=True)
+
+print(f"\n4-es build kiszűrve. Régi: {len(df_regi)} build, Új: {len(df_uj)} build")
+
 stage_cols_regi = [col for col in df_regi.columns if not col.startswith('_')]
 stage_cols_uj = [col for col in df_uj.columns if not col.startswith('_')]
 all_stages_set = set(stage_cols_regi + stage_cols_uj)
